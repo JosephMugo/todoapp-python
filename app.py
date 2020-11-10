@@ -22,6 +22,18 @@ class Todo(db.Model):
 # don't use this command when migration is being used
 # db.create_all()
 
+@app.route('/todos/<todo_id>/delete', methods=['DELETE'])
+def delete_todo(todo_id):
+    try:
+        todo = Todo.query.get(todo_id);
+        db.session.delete(todo)
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally: 
+        db.session.close()
+    return jsonify({ 'success': True})
+
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
     body = {}

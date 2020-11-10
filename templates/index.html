@@ -9,9 +9,43 @@
             display: none;
         }
         ul {
+            display: flex;
+            width: 50%;
+            flex-direction: column;
             list-style: none;
             padding: 0;
             margin: 0;
+            background-color: #333333;
+        }
+        li {
+            display: flex;
+            flex: 1;
+            padding: 2rem;
+            justify-content: space-around;
+            align-items: center;
+            color: white;
+            font-family: sans-serif;
+            letter-spacing: .2em;
+        }
+        li:hover {
+            color: white;
+            background-color: black;
+        }
+        input.check-completed {
+            width: 37.34px;
+            height: 42.4px;
+        }
+        button {
+            border: none;
+            padding: 12px;
+            background-color: red;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: white;
+            color: red;
         }
     </style>
 </head>
@@ -23,10 +57,35 @@
     <div id="error" class="hidden">Something went wrong!</div>
     <ul id="todos">
         {% for d in data %}
-        <li><input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %}/>{{ d.description}}</li>
+        <li>
+            <input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %}/>
+            {{ d.description}}
+            <button class="delete-button" data-id="{{ d.id }}">&#9932</button>
+        </li>
         {% endfor %}
     </ul>
     <script>
+        // Delete Button 
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        for (let x = 0; x < deleteButtons.length; x++) {
+            const deleteButton = deleteButtons[x];
+            deleteButton.onclick = function(e) {
+                console.log('button event', e);
+                const todoId = e.target.dataset['id'];
+                fetch('/todos/' + todoId + '/delete', {
+                    method: 'DELETE'
+                })
+                .then(function() {
+                    document.getElementById('error').className = 'hidden';
+                    window.location = window.location;
+                })
+                .catch(function(err) {
+                    console.log(err)
+                    document.getElementById('error').className = '';
+                })
+            }
+        }
+        // Checkbox
         const checkboxes = document.querySelectorAll('.check-completed');
         for (let i = 0; i < checkboxes.length; i++) {
             const checkbox = checkboxes[i];
@@ -52,6 +111,7 @@
                 })
             }
         }   
+        // Form
         document.getElementById('form').onsubmit = function(e) {
             e.preventDefault();
             document.getElementById('error').className = 'hidden';
@@ -69,10 +129,11 @@
             })
             .then(function(jsonResponse) {
                 console.log(jsonResponse);
-                const liItem = document.createElement('li');
-                liItem.innerHTML = jsonResponse['description'];
-                document.getElementById('todos').appendChild(liItem);
-                document.getElementById('error').className = 'hidden';
+                // const liItem = document.createElement('li');
+                // liItem.innerHTML = jsonResponse['description'];
+                // document.getElementById('todos').appendChild(liItem);
+                // document.getElementById('error').className = 'hidden';
+                window.location = window.location;
             })
             .catch(function(err) {
                 console.log(err)
